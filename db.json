@@ -1,0 +1,14 @@
+{
+  "todos": [
+    {
+      "id": 1,
+      "text": "Welcome to your Todo List!",
+      "completed": false
+    },
+    {
+      "id": 2,
+      "text": "Add your first task",
+      "completed": false
+    }
+  ]
+}
