@@ -11,6 +11,18 @@ const TodoItem = ({ todo, onToggle, onDelete, onUpdate }) => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className={`todo-item ${todo.completed ? 'completed' : ''}`}>
       <div className="todo-content">
@@ -20,18 +32,21 @@ const TodoItem = ({ todo, onToggle, onDelete, onUpdate }) => {
           onChange={() => onToggle(todo.id)}
           className="todo-checkbox"
         />
-        {isEditing ? (
-          <input
-            type="text"
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            className="todo-input edit-input"
-            autoFocus
-            onKeyDown={(e) => e.key === 'Enter' && handleEdit()}
-          />
-        ) : (
-          <span className="todo-text">{todo.text}</span>
-        )}
+        <div className="todo-text-container">
+          {isEditing ? (
+            <input
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              className="todo-input edit-input"
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && handleEdit()}
+            />
+          ) : (
+            <span className="todo-text">{todo.text}</span>
+          )}
+          <span className="todo-date">{formatDate(todo.dateCreated)}</span>
+        </div>
       </div>
       <div className="todo-actions">
         <button

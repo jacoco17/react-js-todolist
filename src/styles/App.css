@@ -3,6 +3,8 @@
   --primary-hover: #6d28d9;
   --background-color: rgba(248, 250, 252, 0.8);
   --card-background: rgba(255, 255, 255, 0.9);
+  --suggestion-background: rgb(207, 207, 207);
+  --suggestion-background-2: rgb(156, 156, 156);
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --border-color: rgba(226, 232, 240, 0.8);
@@ -24,7 +26,8 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: var(--text-primary);
   line-height: 1.5;
@@ -85,6 +88,7 @@ body {
   display: flex;
   gap: 0.75rem;
   position: relative;
+  width: 100%;
 }
 
 .todo-input {
@@ -97,6 +101,8 @@ body {
   transition: all 0.3s ease;
   background-color: var(--background-color);
   backdrop-filter: blur(5px);
+  position: relative;
+  width: 100%;
 }
 
 .todo-input:focus {
@@ -180,13 +186,20 @@ body {
 }
 
 .todo-checkbox:checked::after {
-  content: '✓';
+  content: "✓";
   position: absolute;
   color: white;
   font-size: 1rem;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.todo-text-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
 }
 
 .todo-text {
@@ -198,6 +211,16 @@ body {
 .todo-item.completed .todo-text {
   text-decoration: line-through;
   color: var(--text-secondary);
+}
+
+.todo-date {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 2px;
+}
+
+.todo-item.completed .todo-date {
+  color: #999;
 }
 
 .todo-actions {
@@ -266,6 +289,90 @@ body {
   animation: spin 1s linear infinite;
 }
 
+/* new styles */
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  margin-bottom: 1em;
+}
+
+nav div {
+  padding: 0.5em 1.5em;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  background-color: var(--background-color);
+  position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+nav div:hover {
+  cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-color);
+}
+
+nav .tab-count {
+  position: absolute;
+  font-size: 0.7rem;
+  right: 0;
+  top: 0;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.1rem 0.5rem;
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+}
+
+.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* suggestion styles */
+
+.suggestion-container {
+  position: absolute;
+  background-color: var(--suggestion-background);
+  width: 87%;
+  bottom: 0px;
+  left: 0;
+  transform: translateY(100%);
+  z-index: 10;
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  max-height: 220px;
+  overflow-y: scroll;
+}
+
+.suggestion{
+  padding: .6em 1.5em;
+  transition: all 0.15s ease;
+}
+
+.suggestion:first-of-type{
+  border-radius: 10px 10px 0px 0px;
+}
+
+.suggestion:last-of-type{
+  border-radius: 0px 0px 10px 10px;
+}
+
+.highlight{
+  color: var(--primary-color) ;
+}
+
+.suggestion:hover,
+.suggestion-highlight{
+  background-color: var(--suggestion-background-2);
+  cursor: pointer;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -305,4 +412,39 @@ body {
   .todo-item {
     padding: 1rem;
   }
-} 
+
+  nav div {
+    padding: 0.3em 0.6em;
+  }
+}
+
+/* toast transition ito yung sa notification */
+@keyframes pop-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pop-fade-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.pop-fade-in {
+  animation: pop-fade-in 0.5s ease-out forwards;
+}
+
+.pop-fade-out {
+  animation: pop-fade-out 0.5s ease-in forwards;
+}
