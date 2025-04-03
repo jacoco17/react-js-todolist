@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import TodoForm from '../components/TodoForm';
-import TodoItem from '../components/TodoItem';
+import React, { useState, useEffect } from "react";
+import TodoForm from "../components/TodoForm";
+import TodoItem from "../components/TodoItem";
+import Tabs from "../components/Tabs";
+import TodoQuote from "../components/TodoQuote";
 
-const API_URL = 'http://localhost:3000/todos';
+const API_URL = "http://localhost:3000/todos";
 
-const TodoList = () => {
+const TodoList = (props) => {
   const [todos, setTodos] = useState([]);
+  const [selectedTab, setSelectedTab] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const {notify} = props
 
   useEffect(() => {
     fetchTodos();
@@ -16,7 +21,7 @@ const TodoList = () => {
   const fetchTodos = async () => {
     try {
       const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('Failed to fetch todos');
+      if (!response.ok) throw new Error("Failed to fetch todos");
       const data = await response.json();
       setTodos(data);
     } catch (err) {
@@ -29,15 +34,20 @@ const TodoList = () => {
   const handleAddTodo = async (text) => {
     try {
       const response = await fetch(API_URL, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text, completed: false }),
+        body: JSON.stringify({ 
+          text, 
+          completed: false,
+          dateCreated: new Date().toISOString()
+        }),
       });
-      if (!response.ok) throw new Error('Failed to add todo');
+      if (!response.ok) throw new Error("Failed to add todo");
       const newTodo = await response.json();
       setTodos([...todos, newTodo]);
+      notify("Task added!")
     } catch (err) {
       setError(err.message);
     }
@@ -45,17 +55,18 @@ const TodoList = () => {
 
   const handleToggleTodo = async (id) => {
     try {
-      const todo = todos.find(t => t.id === id);
+      const todo = todos.find((t) => t.id === id);
       const response = await fetch(`${API_URL}/${id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ completed: !todo.completed }),
       });
-      if (!response.ok) throw new Error('Failed to update todo');
+      if (!response.ok) throw new Error("Failed to update todo");
       const updatedTodo = await response.json();
-      setTodos(todos.map(t => t.id === id ? updatedTodo : t));
+      setTodos(todos.map((t) => (t.id === id ? updatedTodo : t)));
+      notify("Task completed!")
     } catch (err) {
       setError(err.message);
     }
@@ -64,15 +75,16 @@ const TodoList = () => {
   const handleUpdateTodo = async (id, text) => {
     try {
       const response = await fetch(`${API_URL}/${id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ text }),
       });
-      if (!response.ok) throw new Error('Failed to update todo');
+      if (!response.ok) throw new Error("Failed to update todo");
       const updatedTodo = await response.json();
-      setTodos(todos.map(t => t.id === id ? updatedTodo : t));
+      setTodos(todos.map((t) => (t.id === id ? updatedTodo : t)));
+      notify("Task edited!")
     } catch (err) {
       setError(err.message);
     }
@@ -81,14 +93,17 @@ const TodoList = () => {
   const handleDeleteTodo = async (id) => {
     try {
       const response = await fetch(`${API_URL}/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      if (!response.ok) throw new Error('Failed to delete todo');
-      setTodos(todos.filter(todo => todo.id !== id));
+      if (!response.ok) throw new Error("Failed to delete todo");
+      setTodos(todos.filter((todo) => todo.id !== id));
+      notify("Task deleted!")
     } catch (err) {
       setError(err.message);
     }
   };
+
+
 
   if (loading) {
     return (
@@ -126,17 +141,29 @@ const TodoList = () => {
     );
   }
 
+  const filteredTodoList =
+    selectedTab === "all"
+      ? todos
+      : selectedTab === "completed"
+      ? todos.filter((todo) => todo.completed)
+      : todos.filter((todo) => !todo.completed);
   return (
     <div className="todo-container">
       <div className="todo-header">
         <h1>Todo List</h1>
-        <p className="subtitle">Stay organized and boost your productivity</p>
+        <TodoQuote />
       </div>
-      
+
+      <Tabs
+        selectedTab={selectedTab}
+        setSelectedTab={setSelectedTab}
+        todos={todos}
+      />
+
       <TodoForm onSubmit={handleAddTodo} />
-      
+
       <div className="todo-list">
-        {todos.length === 0 ? (
+        {filteredTodoList.length === 0 ? (
           <div className="empty-state">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -158,10 +185,10 @@ const TodoList = () => {
               <path d="M4.93 19.07l2.83-2.83" />
               <path d="M16.24 7.76l2.83-2.83" />
             </svg>
-            <p>No tasks yet. Add one to get started!</p>
+            <p>No tasks yet.</p>
           </div>
         ) : (
-          todos.map(todo => (
+          filteredTodoList.map((todo) => (
             <TodoItem
               key={todo.id}
               todo={todo}
@@ -172,8 +199,9 @@ const TodoList = () => {
           ))
         )}
       </div>
+
     </div>
   );
 };
 
-export default TodoList; 
+export default TodoList;
